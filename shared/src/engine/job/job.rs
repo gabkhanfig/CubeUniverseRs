@@ -420,3 +420,9 @@ impl Job {
         }
     }
 }
+
+impl Default for Job {
+    fn default() -> Self {
+        Self { func: UnsafeCell::new(JobFunc::Invalid), buffer: UnsafeCell::new(JobRunDataBuffer::default()) }
+    }
+}
