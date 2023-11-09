@@ -419,6 +419,13 @@ impl Job {
             JobFunc::Invalid => panic!("Cannot invoke an invalid job")
         }
     }
+
+    pub fn is_bound(&self) -> bool {
+        match unsafe { &*self.func.get() } {
+            JobFunc::Invalid => false,
+            _ => true
+        }
+    }
 }
 
 impl Default for Job {
