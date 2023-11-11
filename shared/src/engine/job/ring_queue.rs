@@ -1,7 +1,7 @@
-use super::{job_container::Job, system::QUEUE_CAPACITY};
+use super::{job_container::JobContainer, system::QUEUE_CAPACITY};
 
 pub(crate) struct JobRingQueue {
-    pub(crate) buffer: Box<[Job]>,
+    pub(crate) buffer: Box<[JobContainer]>,
     pub(crate) length: usize,
     pub(crate) read_index: usize,
     pub(crate) write_index: usize
@@ -9,9 +9,9 @@ pub(crate) struct JobRingQueue {
 
 impl JobRingQueue {
     pub(crate) fn new() -> Self {
-        let mut v: Vec<Job> = Vec::with_capacity(QUEUE_CAPACITY);
+        let mut v: Vec<JobContainer> = Vec::with_capacity(QUEUE_CAPACITY);
         for _ in 0..QUEUE_CAPACITY {
-            v.push(Job::default());
+            v.push(JobContainer::default());
         }
         return JobRingQueue { 
             buffer: v.into_boxed_slice(), 
@@ -29,7 +29,7 @@ impl JobRingQueue {
     //     return self.length == 0;
     // }
 
-    pub(crate) fn push(&mut self, mut job: Job) {
+    pub(crate) fn push(&mut self, mut job: JobContainer) {
         assert!(!self.is_full(), "Job ring queue is full");
 
         std::mem::swap(&mut self.buffer[self.write_index], &mut job);

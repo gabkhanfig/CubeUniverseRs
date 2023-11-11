@@ -433,14 +433,14 @@ impl Default for Job {
 } */
 
 
-pub(crate) struct Job {
+pub(crate) struct JobContainer {
     func: Option<Box<dyn FnMut()>>
 }
 
-impl Job {
+impl JobContainer {
     pub(crate) fn new<F>(func: F) -> Self
     where F: FnMut() + 'static {
-        return Job { func: Some(Box::new(func)) }
+        return JobContainer { func: Some(Box::new(func)) }
     }
 
     /// Cannot invoke again
@@ -450,7 +450,7 @@ impl Job {
     }
 }
 
-impl Default for Job {
+impl Default for JobContainer {
     fn default() -> Self {
         Self { func: None }
     }

@@ -2,7 +2,7 @@
 
 use std::{sync::{atomic::{AtomicBool, AtomicUsize, Ordering}, Condvar, Mutex}, thread};
 
-use super::{job_container::Job, future::{JobFuture, WithinJobFuture}, ring_queue::JobRingQueue, active_jobs::ActiveJobs};
+use super::{job_container::JobContainer, future::{JobFuture, WithinJobFuture}, ring_queue::JobRingQueue, active_jobs::ActiveJobs};
 
 pub struct JobThread {
     is_executing: AtomicBool,
@@ -88,7 +88,7 @@ impl JobThread {
     pub fn queue_job<T, F>(&mut self, mut func: F) -> JobFuture<T>
     where T: 'static, F: FnMut() -> T + 'static {
         let (wait_future, in_job_future) = WithinJobFuture::<T>::new();
-        let job = Job::new(move ||
+        let job = JobContainer::new(move ||
             in_job_future.set(func())
         );
 

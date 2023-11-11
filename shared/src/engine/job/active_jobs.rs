@@ -1,15 +1,15 @@
-use super::{system::QUEUE_CAPACITY, job_container::Job, ring_queue::JobRingQueue};
+use super::{system::QUEUE_CAPACITY, job_container::JobContainer, ring_queue::JobRingQueue};
 
 pub(crate) struct ActiveJobs {
-    work: Box<[Job]>,
+    work: Box<[JobContainer]>,
     count: usize
 }
 
 impl ActiveJobs {
     pub(crate) fn new() -> Self {
-        let mut v: Vec<Job> = Vec::with_capacity(QUEUE_CAPACITY);
+        let mut v: Vec<JobContainer> = Vec::with_capacity(QUEUE_CAPACITY);
         for _ in 0..QUEUE_CAPACITY {
-            v.push(Job::default());
+            v.push(JobContainer::default());
         }
         return ActiveJobs { 
             work: v.into_boxed_slice(),
