@@ -1,4 +1,4 @@
-use std::{sync::{Mutex, Arc, RwLock}, thread, cell::{UnsafeCell, OnceCell}, mem::MaybeUninit};
+use std::{sync::{Mutex, Arc, RwLock}, thread};
 use super::{thread::JobThread, future::JobFuture};
 
 pub(crate) const QUEUE_CAPACITY: usize = 8192;
