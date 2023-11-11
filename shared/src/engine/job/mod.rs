@@ -1,3 +1,7 @@
-pub mod job;
-pub mod job_thread;
-pub mod job_system;
+mod ring_queue;
+mod active_jobs;
+mod job_container;
+
+pub mod thread;
+pub mod system;
+pub mod future;
