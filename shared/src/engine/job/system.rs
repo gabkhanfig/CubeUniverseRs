@@ -17,7 +17,12 @@ unsafe impl Send for JobSystem {}
 unsafe impl Sync for JobSystem {}
 
 impl JobSystem {
-    ///
+    /// Create a new job system object given a specific number of threads.
+    /// Ideally, the number of threads will be total system threads - 1.
+    /// ```
+    /// # use shared::engine::job::system::JobSystem;
+    /// let job_system = JobSystem::new(2);
+    /// ```
     pub fn new(thread_count: usize) -> JobSystem {
         debug_assert_ne!(thread_count, 0, "Cannot create a job system using 0 threads");
         let mut v: Vec<Box<JobThread>> = Vec::with_capacity(QUEUE_CAPACITY);
@@ -33,7 +38,15 @@ impl JobSystem {
         }
     }
 
-    ///
+    /// Queue and execute a job on one of the job threads. Automatic load balancing is done.
+    /// ```
+    /// # use shared::engine::job::{system::JobSystem, future::JobFuture};
+    /// let job_system = JobSystem::new(2);
+    /// let future1 = job_system.run_job(|| 123);
+    /// let future2 = job_system.run_job(|| 456);
+    /// assert_eq!(future1.wait(), 123);
+    /// assert_eq!(future2.wait(), 456);
+    /// ```
     pub fn run_job<T, F>(&self, func: F) -> JobFuture<T>
     where T: 'static, F: FnMut() -> T + 'static {
         let job_thread = {
@@ -48,7 +61,18 @@ impl JobSystem {
         }
     }
 
+    /// Wait for all of the job threads to finish execution.
+    /// After wait is called, it can be assumed that there are no active jobs running.
     /// 
+    /// Note: It is technically possible for there to be jobs executing, 
+    /// if the jobs created more jobs that happened to be on earlier threads.
+    /// ```
+    /// # use shared::engine::job::system::JobSystem;
+    /// let job_system = JobSystem::new(2);
+    /// job_system.run_job(|| std::thread::sleep(std::time::Duration::from_millis(10)));
+    /// job_system.run_job(|| std::thread::sleep(std::time::Duration::from_millis(10)));
+    /// job_system.wait();
+    /// ```
     pub fn wait(&self) {
         thread::yield_now();
         let lock = self.inner.lock().unwrap();
@@ -111,7 +135,7 @@ pub fn max_available_job_threads() -> usize {
 }
 
 /// Initializes the job system given a specified thread count.
-/// max_available_job_threads() is a sensible default.
+/// max_available_job_threads() is a sensible default, because it is total system threads - 1.
 /// ```
 /// # use shared::engine::job::system::{job_system_init, max_available_job_threads};
 /// // Initializes the global job system with N threads.
