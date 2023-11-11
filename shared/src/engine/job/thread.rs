@@ -51,10 +51,10 @@ impl JobThread {
                     while (*thread_ptr.0).is_pending_kill.load(Ordering::Acquire) == false {
                         let (lock, cvar) = &mut (*thread_ptr.0).cond_var;
 
-                        let mut count = 0;
-                        {
-                            count = (*thread_ptr.0).queue.lock().unwrap().length;                         
-                        }
+                        let count = {
+                            // scoped to release lock
+                            (*thread_ptr.0).queue.lock().unwrap().length                      
+                        };
                         if count > 0 {
                             (*thread_ptr.0).execute_queued_jobs();
                             continue;
