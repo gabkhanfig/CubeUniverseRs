@@ -141,9 +141,13 @@ pub fn max_available_job_threads() -> usize {
 /// // Initializes the global job system with N threads.
 /// job_system_init(max_available_job_threads());
 /// ```
-pub fn job_system_init(thread_count: usize) {
-    println!("Initializing global job system with {} threads", thread_count);
+pub fn job_system_init(thread_count: usize) {   
     unsafe { 
+        if !JOB_SYSTEM_PTR.0.is_null() {
+            println!("Job system has already been initialized.");
+            return;
+        }
+        println!("Initializing global job system with {} threads", thread_count);
         JOB_SYSTEM = RwLock::new(Some(JobSystem::new(thread_count))); 
         let ptr = JOB_SYSTEM.read().unwrap().as_ref().unwrap() as *const JobSystem;
         JOB_SYSTEM_PTR = JobSystemHandle(ptr);
