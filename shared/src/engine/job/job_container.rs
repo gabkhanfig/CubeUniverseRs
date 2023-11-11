@@ -1,6 +1,4 @@
-use std::cell::UnsafeCell;
-use std::mem::{size_of, align_of};
-
+/*
 /// Holds the free functions, object member functions, or closures to be dispatched by the job,
 /// optionally taking a run buffer in.
 /// 
@@ -431,5 +429,29 @@ impl Job {
 impl Default for Job {
     fn default() -> Self {
         Self { func: UnsafeCell::new(JobFunc::Invalid), buffer: UnsafeCell::new(JobRunDataBuffer::default()) }
+    }
+} */
+
+
+pub(crate) struct Job {
+    func: Option<Box<dyn FnMut()>>
+}
+
+impl Job {
+    pub(crate) fn new<F>(func: F) -> Self
+    where F: FnMut() + 'static {
+        return Job { func: Some(Box::new(func)) }
+    }
+
+    /// Cannot invoke again
+    pub(crate) fn invoke(&mut self) {
+        let mut f = self.func.take().expect("Cannot invoke None Job func");
+        f();
+    }
+}
+
+impl Default for Job {
+    fn default() -> Self {
+        Self { func: None }
     }
 }
